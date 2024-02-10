@@ -2,13 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using ShareSpace.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
 {
@@ -24,58 +22,66 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
             _userManager = userManager;
             _signInManager = signInManager;
         }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public string Username { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+            public string Name { get; set; }
+            public string City { get; set; }
+            public string State { get; set; }
+            public string StreetAddress { get; set; }
+            public string PostalCode { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(ApplicationUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
-            Username = userName;
+            // Assuming GetNameAsync, GetSurnameAsync, and GetImageAsync are methods you added
+            var name = user.Name;
+            var city = user.City;
+            var state = user.State;
+            var streetAddress = user.StreetAdress;
+            var postalCode = user.PostalCode;
+
+            // Get current claims of the user
+            var claims = await _userManager.GetClaimsAsync(user);
+
+            // Check if the user already has a specific claim
+            var nameClaim = claims.FirstOrDefault(c => c.Type == "Name");
+
+            // Similar checks for other claims
+
+            // Store the ApplicationUser instance into user2 (assuming you have it declared)
+            ApplicationUser user2 = user;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                Name = name,
+                PhoneNumber = phoneNumber,
+                City = city,
+                State = state,
+                StreetAddress = streetAddress,
+                PostalCode = postalCode
             };
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
+            if (!User.Identity.IsAuthenticated)
+            {
+                // Redirect the user to the login page or return an error message.
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
+            }
+
+            var user = await _userManager.GetUserAsync(User) as ApplicationUser;
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -87,32 +93,75 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User) as ApplicationUser;
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return RedirectToAction("Login", "Account", new { area = "identity" });
             }
 
-            if (!ModelState.IsValid)
+            if (Input.Name != user.Name)
             {
-                await LoadAsync(user);
-                return Page();
-            }
-
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
+                user.Name = Input.Name;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
                     return RedirectToPage();
                 }
             }
 
+            if (Input.PhoneNumber != user.PhoneNumber)
+            {
+                user.PhoneNumber = Input.PhoneNumber;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.City != user.City)
+            {
+                user.City = Input.City;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.State != user.State)
+            {
+                user.State = Input.State;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.StreetAddress != user.StreetAdress)
+            {
+                user.StreetAdress = Input.StreetAddress;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.PostalCode != user.PostalCode)
+            {
+                user.PostalCode = Input.PostalCode;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+            TempData["success"] = "Profile Updated Successfully!";
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
+
     }
 }
