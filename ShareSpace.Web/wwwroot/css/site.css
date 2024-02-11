@@ -20,3 +20,55 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.post-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.post {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.post h3 {
+    margin-top: 0;
+}
+
+.post-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+}
+
+.carousel-item img {
+    max-height: 300px; /* Set maximum height for the images */
+    border-radius: 10px; /* Apply rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+    height: 300px; /* Adjust height as needed */
+    object-fit: cover;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    padding: 5px;
+    border-radius: 50%;
+    color: red;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.delete-btn:hover {
+    transform: scale(1.1);
+}
+
+.card-body {
+    position: relative;
+}

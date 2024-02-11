@@ -6,12 +6,12 @@ namespace ShareSpace.DataAccess.Repository
     public class UnitOfWork : IUnitOfWork
     {
         private ApplicationDbContext _db;
-        //public IApplicationUserRepository ApplicationUser { get; private set; }
+        public IPostRepository Post { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
-            //ApplicationUser = new ApplicationUserRepository(_db);
+            Post = new PostRepository(_db);
         }
 
         public void Save()

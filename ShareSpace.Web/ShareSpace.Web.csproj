@@ -24,4 +24,8 @@
     <ProjectReference Include="..\ShareSpace.DataAccess\ShareSpace.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>
