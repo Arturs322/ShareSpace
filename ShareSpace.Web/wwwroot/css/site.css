@@ -44,6 +44,11 @@ body {
     color: #666;
 }
 
+.post-card {
+    max-height: 600px; /* Adjust the height */
+    max-width: 500px; /* Adjust the maximum width */
+}
+
 .carousel-item img {
     max-height: 300px; /* Set maximum height for the images */
     border-radius: 10px; /* Apply rounded corners */
@@ -71,4 +76,11 @@ body {
 
 .card-body {
     position: relative;
+}
+
+.btn-like {
+    color: white; /* Change text color to white when active */
+}
+
+.btn-like.active {
 }

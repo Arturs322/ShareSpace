@@ -9,6 +9,7 @@ namespace ShareSpace.DataAccess.Repository.IRepository
     public interface IUnitOfWork
     {
         IPostRepository Post { get; }
+        IPostLikeRepository PostLike { get; }
         void Save();
     }
 }

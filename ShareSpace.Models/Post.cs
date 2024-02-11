@@ -18,6 +18,8 @@ namespace ShareSpace.Models
         public DateTime PostDate { get; set; } = DateTime.Now;
         public int? LikeCount { get; set; }
         [ValidateNever]
+        public bool HasLiked { get; set; } = false;
+        [ValidateNever]
         public List<PostImage> PostImages { get; set; }
     }
 }

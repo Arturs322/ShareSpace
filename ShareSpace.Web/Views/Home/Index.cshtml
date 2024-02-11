@@ -1,8 +1,60 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model PostVM
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<div class="container">
+    <div class="row pt-4 pb-3">
+        <div class="col-12">
+            <h2 class="text-body text-center">
+                User Feed
+            </h2>
+        </div>
+    </div>
+    <div class="row justify-content-center text-center">
+        @foreach (var post in Model.Posts.OrderByDescending(u => u.PostDate))
+        {
+            var active = post.HasLiked ? "btn btn-primary" : "btn btn-secondary";
+            <div class="pb-2">
+                <div class="card post-card d-inline-block">
+                    <div class="card-header text-warning">
+                        @post.User.Name
+                    </div>
+                    <div id="postCarousel-@post.Id" class="carousel slide">
+                        <div class="carousel-inner">
+                            @foreach (var image in post.PostImages)
+                            {
+                                <div class="carousel-item @(image == post.PostImages.First() ? "active" : "")">
+                                    <img src="@image.imageUrl" class="d-block w-100" alt="...">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#postCarousel-@post.Id"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#postCarousel-@post.Id"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@post.Title</h5>
+                        <p class="card-text">@post.Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <form asp-action="LikeAPost" asp-controller="Home" method="post">
+                                <input type="hidden" name="postId" value="@post.Id" />
+                                <div class="text-warning">
+                                    <button type="submit" class="btn btn-like @active">
+                                        <i class="bi bi-hand-thumbs-up"></i>@post.LikeCount
+                                    </button>
+                                </div>
+                            </form>
+                            <small class="text-muted">@post.PostDate.ToString("MMMM dd, yyyy HH:mm")</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>

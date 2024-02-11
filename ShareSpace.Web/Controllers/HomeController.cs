@@ -1,24 +1,81 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ShareSpace.DataAccess.Repository.IRepository;
+using ShareSpace.Models;
+using System.Security.Claims;
 
 namespace ShareSpace.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
-            _logger = logger;
+            _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var userLikedPosts = _unitOfWork.PostLike.GetAll(p => p.UserId == userId).Select(p => p.PostId);
+
+            var postVM = new PostVM
+            {
+                Posts = _unitOfWork.Post.GetAll(includeProperties: "PostImages,User"),
+            };
+
+            foreach (var post in postVM.Posts)
+            {
+               post.HasLiked = userLikedPosts.Contains(post.Id);
+            }
+
+            return View(postVM);
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult LikeAPost(int postId)
         {
-            return View();
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            ApplicationUser user = (ApplicationUser)_userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
+
+            var like = new PostLike
+            {
+                UserId = user.Id,
+                PostId = postId,
+            };
+
+            var likedPost = _unitOfWork.PostLike.Get(u => u.UserId == user.Id && u.PostId == postId);
+            var post = _unitOfWork.Post.Get(u => u.Id == postId);
+
+            if (likedPost != null)
+            {
+                _unitOfWork.PostLike.Remove(likedPost);
+                post.LikeCount -= 1;
+            } 
+            else
+            {
+                _unitOfWork.PostLike.Add(like);
+                post.LikeCount += 1;
+            }
+            
+            _unitOfWork.Post.Update(post);
+            _unitOfWork.Save();
+            return RedirectToAction("Index");
+        }
+
+        public bool CheckIfUserLikedPost(int postId, string userId)
+        {
+            // Logic to check if the user has liked the post
+            var postLike = _unitOfWork.PostLike.Get(p => p.PostId == postId && p.UserId == userId);
+            return postLike != null;
         }
     }
 }
