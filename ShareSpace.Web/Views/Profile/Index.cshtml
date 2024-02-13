@@ -1,13 +1,27 @@
 ﻿@model PostVM
+@using Microsoft.AspNetCore.Identity
+@using ShareSpace.Models
 
-
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4 offset-md-4 profile-header">
             <img src="@Model.User.ProfilePictureUrl" alt="Profile Image" class="profile-image">
             <div class="profile-info">
                 <h3>@Model.User.Name</h3>
+                @if(Model.User.Id != user.Id)
+                {
+                    <button type="button" class="btn btn-primary">Follow</button>
+                }
                 <div class="profile-stats">
+                    <div class="stat">
+                        <strong>@Model.PostCount</strong>
+                        <span>Posts</span>
+                    </div>
                     <div class="stat">
                         <strong>@Model.User.Followers</strong>
                         <span>Followers</span>
@@ -15,10 +29,6 @@
                     <div class="stat">
                         <strong>@Model.User.Following</strong>
                         <span>Following</span>
-                    </div>
-                    <div class="stat">
-                        <strong>@Model.PostCount</strong>
-                        <span>Posts</span>
                     </div>
                 </div>
                 <p class="profile-description">@Model.User.Description</p>
@@ -28,6 +38,8 @@
 </div>
 
 <div class="container">
+    @if (Model.User.Id == user.Id)
+    {
     <div class="row pt-4 pb-3">
         <div class="col-12">
             <h2 class="text-body text-center">
@@ -37,6 +49,7 @@
             </h2>
         </div>
     </div>
+    }
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var post in Model.Posts.OrderByDescending(u => u.PostDate))
         {

@@ -16,7 +16,7 @@
                 <label asp-for="Input.Name" class="form-label"></label>
             </div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.Description" class="form-control" placeholder="Please choose your Postal Code." />
+                <textarea asp-for="Input.Description" class="form-control" placeholder="Please choose your Postal Code." ></textarea>
                 <label asp-for="Input.Description" class="form-label"></label>
             </div>
             @if (!string.IsNullOrEmpty(Model.Input.ProfilePictureUrl))

@@ -135,3 +135,13 @@ text-align: center;
 .profile-description {
     margin-top: 20px;
 }
+
+.profile-image-sm {
+    width: 30px; /* Adjust the width as needed */
+    height: 30px; /* Adjust the height as needed */
+}
+
+.profile-link {
+    text-decoration: none;
+    color: inherit; /* Inherit color from parent */
+}
