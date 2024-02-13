@@ -45,15 +45,15 @@ body {
 }
 
 .post-card {
-    max-height: 600px; /* Adjust the height */
-    max-width: 500px; /* Adjust the maximum width */
+    max-height: 600px;
+    max-width: 500px;
 }
 
 .carousel-item img {
-    max-height: 300px; /* Set maximum height for the images */
-    border-radius: 10px; /* Apply rounded corners */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
-    height: 300px; /* Adjust height as needed */
+    max-height: 300px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    height: 300px;
     object-fit: cover;
 }
 
@@ -79,8 +79,59 @@ body {
 }
 
 .btn-like {
-    color: white; /* Change text color to white when active */
+    color: white;
 }
 
-.btn-like.active {
+.profile-img-topbar {
+    width: 59px;
+    height: 49px;
+    border-radius: 50%;
+}
+
+.profile-img-account {
+    width: 200px;
+    height: 200px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-image {
+    width: 170px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 30px;
+}
+
+.profile-info {
+    flex-grow: 1;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.profile-stats .stat {
+text-align: center;
+}
+
+.profile-stats .stat span {
+    display: block;
+    font-size: 14px;
+    color: #999;
+}
+
+.profile-stats .stat strong {
+    display: block;
+    font-size: 18px;
+}
+
+.profile-description {
+    margin-top: 20px;
 }

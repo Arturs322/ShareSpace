@@ -9,9 +9,9 @@ namespace ShareSpace.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public HomeController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -19,19 +19,22 @@ namespace ShareSpace.Web.Controllers
 
         public IActionResult Index()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var userLikedPosts = _unitOfWork.PostLike.GetAll(p => p.UserId == userId).Select(p => p.PostId);
-
             var postVM = new PostVM
             {
                 Posts = _unitOfWork.Post.GetAll(includeProperties: "PostImages,User"),
             };
 
-            foreach (var post in postVM.Posts)
+            if (User.Identity.IsAuthenticated)
             {
-               post.HasLiked = userLikedPosts.Contains(post.Id);
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                var userLikedPosts = _unitOfWork.PostLike.GetAll(p => p.UserId == userId).Select(p => p.PostId);
+
+                foreach (var post in postVM.Posts)
+                {
+                    post.HasLiked = userLikedPosts.Contains(post.Id);
+                }
             }
 
             return View(postVM);
@@ -44,7 +47,7 @@ namespace ShareSpace.Web.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ApplicationUser user = (ApplicationUser)_userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
+            ApplicationUser user = _userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
 
             var like = new PostLike
             {
@@ -58,12 +61,12 @@ namespace ShareSpace.Web.Controllers
             if (likedPost != null)
             {
                 _unitOfWork.PostLike.Remove(likedPost);
-                post.LikeCount -= 1;
+                post.LikeCount--;
             } 
             else
             {
                 _unitOfWork.PostLike.Add(like);
-                post.LikeCount += 1;
+                post.LikeCount++;
             }
             
             _unitOfWork.Post.Update(post);

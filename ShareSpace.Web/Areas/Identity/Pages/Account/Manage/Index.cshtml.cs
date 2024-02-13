@@ -12,15 +12,18 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IWebHostEnvironment _environment;
 
         public IndexModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IWebHostEnvironment environment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _environment = environment;
         }
         [TempData]
         public string StatusMessage { get; set; }
@@ -37,6 +40,9 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
             public string State { get; set; }
             public string StreetAddress { get; set; }
             public string PostalCode { get; set; }
+            public string Description { get; set; }
+            public IFormFile ProfilePicture { get; set; }
+            public string ProfilePictureUrl { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -50,6 +56,9 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
             var state = user.State;
             var streetAddress = user.StreetAdress;
             var postalCode = user.PostalCode;
+            var description = user.Description;
+            var picture = user.ProfilePicture;
+            var pictureUrl = user.ProfilePictureUrl;
 
             // Get current claims of the user
             var claims = await _userManager.GetClaimsAsync(user);
@@ -69,7 +78,10 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
                 City = city,
                 State = state,
                 StreetAddress = streetAddress,
-                PostalCode = postalCode
+                PostalCode = postalCode,
+                Description = description,
+                ProfilePicture = picture,
+                ProfilePictureUrl = pictureUrl
             };
         }
 
@@ -158,10 +170,71 @@ namespace ShareSpace.Web.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
+
+            if (Input.Description != user.Description)
+            {
+                user.Description = Input.Description;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+
+            if (Input.ProfilePicture != null)
+            {
+                string profilePictureUrl = await SaveProfilePictureAsync(user, Input.ProfilePicture);
+                user.ProfilePictureUrl = profilePictureUrl;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return RedirectToPage();
+                }
+            }
+
             TempData["success"] = "Profile Updated Successfully!";
             await _signInManager.RefreshSignInAsync(user);
             return RedirectToPage();
         }
+
+        public async Task<string> SaveProfilePictureAsync(ApplicationUser user, IFormFile profilePicture)
+        {
+            try
+            {
+                // Retrieve the old profile picture URL
+                string oldProfilePictureUrl = user.ProfilePictureUrl;
+
+                // If there's an old profile picture, delete it
+                if (!string.IsNullOrEmpty(oldProfilePictureUrl))
+                {
+                    var oldImagePath = Path.Combine(_environment.WebRootPath, oldProfilePictureUrl.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(profilePicture.FileName);
+
+                var imagePath = Path.Combine(_environment.WebRootPath, "images", "profile-pictures", fileName);
+
+                Directory.CreateDirectory(Path.GetDirectoryName(imagePath));
+
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await profilePicture.CopyToAsync(stream);
+                }
+
+                return "/images/profile-pictures/" + fileName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error saving profile picture: " + ex.Message);
+                throw;
+            }
+        }
+
 
     }
 }

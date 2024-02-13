@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ShareSpace.DataAccess.Data;
 using ShareSpace.DataAccess.Repository;
 using ShareSpace.DataAccess.Repository.IRepository;
+using ShareSpace.Models;
 using ShareSpace.Utilities;
 
 
@@ -15,7 +16,9 @@ builder.Services.AddDbContext<ApplicationDbContext>
     (option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = $"/Identity/Account/Login";

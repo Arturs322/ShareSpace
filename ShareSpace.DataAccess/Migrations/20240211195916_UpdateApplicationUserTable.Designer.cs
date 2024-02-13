@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShareSpace.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using ShareSpace.DataAccess.Data;
 namespace ShareSpace.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240211195916_UpdateApplicationUserTable")]
+    partial class UpdateApplicationUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,7 +264,7 @@ namespace ShareSpace.Web.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("ShareSpace.Models.PostImage", b =>
@@ -283,7 +286,7 @@ namespace ShareSpace.Web.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostImage", (string)null);
+                    b.ToTable("PostImage");
                 });
 
             modelBuilder.Entity("ShareSpace.Models.PostLike", b =>
@@ -307,7 +310,7 @@ namespace ShareSpace.Web.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostLikes", (string)null);
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("ShareSpace.Models.ApplicationUser", b =>

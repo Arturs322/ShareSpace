@@ -1,27 +1,43 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using ShareSpace.Models
 
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-            <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link border-0">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var user = await UserManager.GetUserAsync(User);
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" style="text-decoration: none; color: #fff" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                {
+                    <img src="@user.ProfilePictureUrl" alt="Profile Image" class="profile-img-topbar" />
+                }
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="dropdown-item d-flex align-items-center">
+                    <i class="bi bi-person-circle me-2"></i> <a asp-area="Identity" asp-page="/Account/Manage/Index" style="text-decoration: none; color: inherit;">Profile</a>
+                </li>
+                <li class="dropdown-item d-flex align-items-center">
+                    <i class="bi bi-instagram me-2"></i> <a asp-controller="Profile" asp-action="Index" style="text-decoration: none; color: inherit;">My Posts</a>
+                </li>
+                <li class="dropdown-item d-flex align-items-center">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="m-0">
+                        <button id="logout" type="submit" class="btn btn-link p-0" style="text-decoration: none; color: inherit;">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
 </ul>
