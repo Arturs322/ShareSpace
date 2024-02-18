@@ -10,12 +10,22 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4 offset-md-4 profile-header">
-            <img src="@Model.User.ProfilePictureUrl" alt="Profile Image" class="profile-image">
+            @if (Model.User.ProfilePictureUrl == null)
+            {
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg" class="profile-image">
+            }
+            else
+            {
+                <img src="@Model.User.ProfilePictureUrl" alt="Profile Image" class="profile-image">
+            }
             <div class="profile-info">
                 <h3>@Model.User.Name</h3>
                 @if(Model.User.Id != user.Id)
                 {
-                    <button type="button" class="btn btn-primary">Follow</button>
+                    <form asp-action="Follow" asp-controller="Profile" method="post">
+                        <input type="hidden" name="followUserId" value="@Model.User.Id" />
+                        <button type="submit" class="btn btn-primary">Follow</button>
+                    </form>
                 }
                 <div class="profile-stats">
                     <div class="stat">
@@ -23,11 +33,15 @@
                         <span>Posts</span>
                     </div>
                     <div class="stat">
-                        <strong>@Model.User.Followers</strong>
+                        <a href="@Url.Action("Followers", "Profile", new { userProfileId = Model.User.Id })" class="profile-link">
+                            <strong>@Model.FollowersCount</strong>
+                        </a>
                         <span>Followers</span>
                     </div>
                     <div class="stat">
-                        <strong>@Model.User.Following</strong>
+                        <a href="@Url.Action("Following", "Profile", new { userProfileId = Model.User.Id })" class="profile-link">
+                            <strong>@Model.FollowingCount</strong>
+                        </a>
                         <span>Following</span>
                     </div>
                 </div>
@@ -53,6 +67,8 @@
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var post in Model.Posts.OrderByDescending(u => u.PostDate))
         {
+            var active = post.HasLiked ? "btn btn-primary" : "btn btn-secondary";
+
             <div class="col">
                 <div class="card h-100">
                     <div id="postCarousel-@post.Id" class="carousel slide">
@@ -78,14 +94,22 @@
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>
                         <p class="card-text">@post.Description</p>
-                        <form asp-action="Delete" asp-controller="Post" method="post">
-                            <input type="hidden" name="postId" value="@post.Id" />
-                            <button type="submit" class="delete-btn"><i class="bi bi-trash"></i></button>
-                        </form>
+                        @if (Model.User.Id == user.Id)
+                        {
+                            <form asp-action="Delete" asp-controller="Post" method="post">
+                                <input type="hidden" name="postId" value="@post.Id" />
+                                <button type="submit" class="delete-btn"><i class="bi bi-trash"></i></button>
+                            </form>
+                        }
                         <div class="d-flex justify-content-between align-items-center">
-                            <div class="text-warning">
-                                <i class="bi bi-hand-thumbs-up-fill"></i> @post.LikeCount
-                            </div>
+                            <form asp-action="LikeAPost" asp-controller="Home" method="post">
+                                <input type="hidden" name="postId" value="@post.Id" />
+                                <div class="text-warning">
+                                    <button type="submit" class="btn btn-like @active">
+                                        <i class="bi bi-hand-thumbs-up"></i>@post.LikeCount
+                                    </button>
+                                </div>
+                            </form>
                             <small class="text-muted">@post.PostDate.ToString("MMMM dd, yyyy HH:mm")</small>
                         </div>
                     </div>

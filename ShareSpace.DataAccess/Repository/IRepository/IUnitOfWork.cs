@@ -10,6 +10,7 @@ namespace ShareSpace.DataAccess.Repository.IRepository
     {
         IPostRepository Post { get; }
         IPostLikeRepository PostLike { get; }
+        IFollowRepository Follow { get; }
         void Save();
     }
 }

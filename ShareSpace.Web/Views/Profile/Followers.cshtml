@@ -1,0 +1,41 @@
+﻿@model ProfileVM
+@using Microsoft.AspNetCore.Identity
+@using ShareSpace.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+<div class="container">
+    <div class="header">
+        <h2>@Model.User.Name Followers <i class="bi bi-suit-heart-fill"></i></h2>
+    </div>
+    <ul class="followers-list">
+        @foreach (var follower in Model.Followers)
+        {
+            <li class="follower">
+                <a href="@Url.Action("Index", "Profile", new { userId = follower.FollowUser.Id })" class="profile-link">
+                    <div class="follower-details">
+                        @if (follower.FollowUser.ProfilePictureUrl == null)
+                        {
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg" class="profile-picture">
+                        }
+                        else
+                        {
+                            <img src="@follower.FollowUser.ProfilePictureUrl" alt="Profile Picture">
+                        }
+                        <div class="username" style="padding-right: 10px;">@follower.FollowUser.Name</div>
+                        @if (user.Id != follower.FollowUserId)
+                        {
+                            <form asp-action="Follow" asp-controller="Profile" method="post">
+                                <input type="hidden" name="followUserId" value="@follower.FollowUserId" />
+                                <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Follow</button>
+                            </form>
+                        }
+                    </div>
+                </a>
+            </li>
+        }
+    </ul>
+</div>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShareSpace.DataAccess.Repository.IRepository;
@@ -41,13 +42,14 @@ namespace ShareSpace.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public IActionResult LikeAPost(int postId)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ApplicationUser user = _userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
+            IdentityUser user = _userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
 
             var like = new PostLike
             {
@@ -74,11 +76,13 @@ namespace ShareSpace.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        #region HELPER
         public bool CheckIfUserLikedPost(int postId, string userId)
         {
             // Logic to check if the user has liked the post
             var postLike = _unitOfWork.PostLike.Get(p => p.PostId == postId && p.UserId == userId);
             return postLike != null;
         }
+        #endregion
     }
 }
