@@ -10,6 +10,7 @@ namespace ShareSpace.DataAccess.Repository
         public IPostRepository Post { get; private set; }
         public IPostLikeRepository PostLike { get; private set; }
         public IFollowRepository Follow { get; private set; }
+        public IPostCommentRepository PostComment { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -17,6 +18,7 @@ namespace ShareSpace.DataAccess.Repository
             Post = new PostRepository(_db);
             PostLike = new PostLikeRepository(_db);
             Follow = new FollowRepository(_db);
+            PostComment = new PostCommentRepository(_db);
         }
 
         public void Save()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShareSpace.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace ShareSpace.DataAccess.Repository.IRepository
         IPostRepository Post { get; }
         IPostLikeRepository PostLike { get; }
         IFollowRepository Follow { get; }
+        IPostCommentRepository PostComment { get; }
         void Save();
     }
 }

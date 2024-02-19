@@ -23,6 +23,7 @@ namespace ShareSpace.Web.Controllers
             var postVM = new PostVM
             {
                 Posts = _unitOfWork.Post.GetAll(includeProperties: "PostImages,User"),
+                PostComments = _unitOfWork.PostComment.GetAll(includeProperties: "Post,User"),
             };
 
             if (User.Identity.IsAuthenticated)

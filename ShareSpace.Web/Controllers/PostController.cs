@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +52,6 @@ namespace ShareSpace.Web.Controllers
 
             ApplicationUser user = (ApplicationUser)_userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
             post.AuthorId = user.Id;
-            post.LikeCount = 10;
             _unitOfWork.Post.Add(post);
             _unitOfWork.Save();
 
@@ -92,7 +92,28 @@ namespace ShareSpace.Web.Controllers
 
 
             TempData["success"] = "Post Added";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult Comment(int postId, string comment)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            ApplicationUser user = _userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
+
+            var userComment = new PostComment
+            {
+                Comment = comment,
+                AuthorId = user.Id,
+                PostId = postId,
+            };
+            _unitOfWork.PostComment.Add(userComment);
+            _unitOfWork.Save();
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
@@ -106,7 +127,7 @@ namespace ShareSpace.Web.Controllers
                 _unitOfWork.Save();
                 TempData["success"] = "Post Deleted Successfully!";
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
     }
 }
