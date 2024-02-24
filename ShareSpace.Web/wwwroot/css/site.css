@@ -49,6 +49,10 @@ body {
     max-width: 500px;
 }
 
+.like-count {
+    margin-left: 5px; 
+}
+
 .carousel-item img {
     max-height: 300px;
     border-radius: 10px;
@@ -83,7 +87,7 @@ body {
 }
 
 .profile-img-topbar {
-    width: 59px;
+    width: 49px;
     height: 49px;
     border-radius: 50%;
 }
@@ -101,7 +105,7 @@ body {
 
 .profile-image {
     width: 170px;
-    height: 150px;
+    height: 170px;
     border-radius: 50%;
     object-fit: cover;
     margin-right: 30px;

@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ShareSpace.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var user = await UserManager.GetUserAsync(User);
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" style="text-decoration: none; color: #fff" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                {
+                    <img src="@user.ProfilePictureUrl" alt="Profile Image" class="profile-img-topbar" />
+                }
+                else
+                {
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg" class="profile-img-topbar">
+                }
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="dropdown-item d-flex align-items-center">
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" style="text-decoration: none; color: inherit;"><i class="bi bi-person-circle me-2"></i> Profile</a>
+                </li>
+                <li class="dropdown-item d-flex align-items-center">
+                    <a asp-controller="Profile" asp-action="Index" style="text-decoration: none; color: inherit;"><i class="bi bi-instagram me-2"></i>My Posts</a>
+                </li>
+                <li class="dropdown-item d-flex align-items-center">
+                    
+                    <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="m-0">
+                        <button id="logout" type="submit" class="btn btn-link p-0" style="text-decoration: none; color: inherit; margin-left:0px"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" style="text-decoration: none; color: #fff; font-size: 30px;" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-lines-fill"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="nav-item">
+                    <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                </li>
+            </ul>
+        </li>
+    }
+</ul>

@@ -22,8 +22,7 @@ namespace ShareSpace.Web.Controllers
         {
             var postVM = new PostVM
             {
-                Posts = _unitOfWork.Post.GetAll(includeProperties: "PostImages,User"),
-                PostComments = _unitOfWork.PostComment.GetAll(includeProperties: "Post,User"),
+                Posts = _unitOfWork.Post.GetAll(includeProperties: "PostImages,User")
             };
 
             if (User.Identity.IsAuthenticated)
@@ -39,13 +38,24 @@ namespace ShareSpace.Web.Controllers
                 }
             }
 
+            var postIds = postVM.Posts.Select(p => p.Id).ToList();
+            var postComments = new List<PostComment>();
+
+            foreach (var postId in postIds)
+            {
+                var comments = _unitOfWork.PostComment.GetAll(c => c.PostId == postId, includeProperties: "User").Take(2);
+                postComments.AddRange(comments);
+            }
+
+            postVM.PostComments = postComments;
+
             return View(postVM);
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public IActionResult LikeAPost(int postId)
+        public JsonResult LikeAPost(int postId)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -69,14 +79,29 @@ namespace ShareSpace.Web.Controllers
             else
             {
                 _unitOfWork.PostLike.Add(like);
-                post.LikeCount++;
+                if(post.LikeCount == null)
+                {
+                    post.LikeCount = 1;
+                }
+                else
+                {
+                    post.LikeCount++;
+                }
             }
             
             _unitOfWork.Post.Update(post);
             _unitOfWork.Save();
-            return RedirectToAction("Index");
+
+            return Json(new { success = true, newLikeCount = post.LikeCount });
         }
 
+        [HttpGet]
+        public JsonResult Comments(int postId)
+        {
+            var comments =_unitOfWork.PostComment.GetAll(u => u.PostId == postId, includeProperties: "User");
+
+            return Json(new { success = true, comments });
+        }
         #region HELPER
         public bool CheckIfUserLikedPost(int postId, string userId)
         {

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShareSpace.DataAccess.Repository.IRepository;
@@ -97,8 +96,7 @@ namespace ShareSpace.Web.Controllers
 
         [HttpPost]
         [Authorize]
-        [ValidateAntiForgeryToken]
-        public IActionResult Comment(int postId, string comment)
+        public JsonResult Comment(int postId, string comment)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -113,7 +111,15 @@ namespace ShareSpace.Web.Controllers
             };
             _unitOfWork.PostComment.Add(userComment);
             _unitOfWork.Save();
-            return RedirectToAction("Index", "Home");
+
+            return Json(new
+            {
+                success = true,
+                newComment = comment,
+                userName = user.Name,
+                userId = user.Id,
+                profilePictureUrl = user.ProfilePictureUrl
+            });
         }
 
         [HttpPost]
@@ -123,7 +129,7 @@ namespace ShareSpace.Web.Controllers
             var postToDelete = _unitOfWork.Post.Get(u => u.Id == postId);
             if (postToDelete != null)
             {
-                _unitOfWork.Post.Remove(postToDelete); 
+                _unitOfWork.Post.Remove(postToDelete);
                 _unitOfWork.Save();
                 TempData["success"] = "Post Deleted Successfully!";
             }
