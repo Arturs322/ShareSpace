@@ -38,6 +38,19 @@ namespace ShareSpace.Web.Controllers
                 FollowingCount = _unitOfWork.Follow.GetAll(u => u.FollowUserId == userId).Count(),
             };
 
+            if (User.Identity.IsAuthenticated)
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                var userLikedPosts = _unitOfWork.PostLike.GetAll(p => p.UserId == userId).Select(p => p.PostId);
+
+                foreach (var post in postVM.Posts)
+                {
+                    post.HasLiked = userLikedPosts.Contains(post.Id);
+                }
+            }
+
             return View(postVM);
         }
 

@@ -19,7 +19,14 @@
                 <img src="@Model.User.ProfilePictureUrl" alt="Profile Image" class="profile-image">
             }
             <div class="profile-info">
-                <h3>@Model.User.Name</h3>
+                @if (string.IsNullOrEmpty(Model.User.Name))
+                {
+                    <h3>@Model.User.Email</h3>
+                }
+                else
+                {
+                    <h3>@Model.User.Name</h3>
+                }
                 @if(Model.User.Id != user.Id)
                 {
                     <form asp-action="Follow" asp-controller="Profile" method="post">
@@ -54,15 +61,31 @@
 <div class="container">
     @if (Model.User.Id == user.Id)
     {
-    <div class="row pt-4 pb-3">
-        <div class="col-12">
-            <h2 class="text-body text-center">
-                <div class="text-center mt-4">
-                    <a asp-action="Create" asp-controller="Post" class="btn btn-primary">Add Post</a>
+        if(!Model.Posts.Any())
+        {
+        <div class="row pt-4 pb-3">
+            <div class="col-12">
+                <h2 class="text-body text-center">
+                    <div class="text-center mt-4">
+                        You do not have any posts yet
+                        <a asp-action="Create" asp-controller="Post" class="profile-link btn btn-primary">Create one!</a>
+                    </div>
+                </h2>
+            </div>
+            </div>
+        } else
+        {
+            <div class="row pt-4 pb-3">
+                <div class="col-12">
+                    <h2 class="text-body text-center">
+                        <div class="text-center mt-4">
+                            <a asp-action="Create" asp-controller="Post" class="profile-link btn btn-primary">Create a new post!</a>
+                        </div>
+                    </h2>
                 </div>
-            </h2>
-        </div>
-    </div>
+            </div>
+        }
+
     }
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var post in Model.Posts.OrderByDescending(u => u.PostDate))
@@ -105,8 +128,8 @@
                             <form asp-action="LikeAPost" asp-controller="Home" method="post">
                                 <input type="hidden" name="postId" value="@post.Id" />
                                 <div class="text-warning">
-                                    <button type="submit" class="btn btn-like @active">
-                                        <i class="bi bi-hand-thumbs-up"></i>@post.LikeCount
+                                    <button type="submit" id="likeButton" class="btn btn-like @active">
+                                        <i class="bi bi-hand-thumbs-up pr-1"></i><span class="like-count">@post.LikeCount</span>
                                     </button>
                                 </div>
                             </form>

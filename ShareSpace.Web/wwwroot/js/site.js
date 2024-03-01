@@ -5,7 +5,7 @@
     comments.forEach(function (comment) {
         var listItem = $('<li>').addClass('list-group-item d-flex justify-content-between align-items-center');
 
-        var profileLink = $('<a>').attr('href', '/Profile/Index/' + comment.user.id).addClass('profile-link ml-3');
+        var profileLink = $('<a>').attr('href', '/Profile?userId=' + comment.authorId).addClass('profile-link ml-3');
         var profileImage = $('<img>').attr('src', comment.user.profilePictureUrl || 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg').addClass('profile-image-sm rounded-circle me-2');
         var usernameSpan = $('<span>').text(comment.user.name);
 

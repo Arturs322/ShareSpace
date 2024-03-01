@@ -116,7 +116,7 @@ namespace ShareSpace.Web.Controllers
             {
                 success = true,
                 newComment = comment,
-                userName = user.Name,
+                userName = string.IsNullOrEmpty(user.Name) ? user.Email : user.Name,
                 userId = user.Id,
                 profilePictureUrl = user.ProfilePictureUrl
             });

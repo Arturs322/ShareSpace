@@ -17,7 +17,14 @@
                             {
                                 <img src="@post.User.ProfilePictureUrl" class="profile-image-sm rounded-circle me-2">
                             }
-                            <span>@post.User.Name</span>
+                            @if (string.IsNullOrEmpty(post.User.Name))
+                            {
+                                <span>@post.User.Email</span>
+                            }
+                            else
+                            {
+                                <span>@post.User.Name</span>
+                            }
                         </a>
                     </div>
                     <div id="postCarousel-@post.Id" class="carousel slide">
